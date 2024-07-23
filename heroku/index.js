@@ -20,12 +20,12 @@ app.use(bodyParser.json());
 var token = process.env.TOKEN || 'token';
 var received_updates = [];
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
   console.log(req);
   res.send('<pre>' + JSON.stringify(received_updates, null, 2) + '</pre>');
 });
 
-app.get(['/facebook', '/instagram'], function(req, res) {
+app.get(['/facebook', '/instagram'], function (req, res) {
   if (
     req.query['hub.mode'] == 'subscribe' &&
     req.query['hub.verify_token'] == token
@@ -36,7 +36,7 @@ app.get(['/facebook', '/instagram'], function(req, res) {
   }
 });
 
-app.post('/facebook', function(req, res) {
+app.post('/facebook', function (req, res) {
   console.log('Facebook request body:', req.body);
 
   if (!req.isXHubValid()) {
@@ -48,10 +48,34 @@ app.post('/facebook', function(req, res) {
   console.log('request header X-Hub-Signature validated');
   // Process the Facebook updates here
   received_updates.unshift(req.body);
+  let data = JSON.stringify({
+    "messaging_product": "whatsapp",
+    "to": "966500385025",
+    "text": {
+      "body": "hi"
+    }
+  });
+
+  let config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: 'https://graph.facebook.com/v20.0/393297853866738/messages',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer EAAOwxVUua2ABO4KVoLW5D2SKlJl6uAdqvXUHCcbEgdrCKpXlXsEkMWoIgsU7uuCanhe9ZCUZClpYWyCe0h99yTAlSTjuKvqHdUz5fLB8RhygZCFhl3xSxV5oGNlj4rvMhIf6zgcnghizWAzoxxnklZBSfv0KNwCZAfBTEDtzye10WZB0uEedRZBLArhwq0EWCvziy28dWgH957KZBZAdqNR1xwKZCLEfWYyvbb'
+    },
+    data: data
+  };
+
+  axios(config)
+    .then(response => {
+      console.log('Message sent successfully');
+    })
+
   res.sendStatus(200);
 });
 
-app.post('/instagram', function(req, res) {
+app.post('/instagram', function (req, res) {
   console.log('Instagram request body:');
   console.log(req.body);
   // Process the Instagram updates here
