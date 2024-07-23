@@ -48,9 +48,20 @@ app.post('/facebook', function (req, res) {
   console.log('request header X-Hub-Signature validated');
   // Process the Facebook updates here
   received_updates.unshift(req.body);
+
+  // Extract information from the webhook request
+  let entry = req.body.entry[0];
+  let changes = entry.changes[0];
+  let value = changes.value;
+  let message = value.messages[0];
+
+  let phone_number_id = value.metadata.phone_number_id;
+  let from = message.from;
+  let msg_body = message.text.body;
+
   let data = JSON.stringify({
     "messaging_product": "whatsapp",
-    "to": "966500385025",
+    "to": from,
     "text": {
       "body": "hi"
     }
