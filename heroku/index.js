@@ -37,7 +37,7 @@ app.get(['/facebook', '/instagram'], function (req, res) {
   }
 });
 
-app.post('/facebook', function (req, res) {
+app.post('/facebook', async function (req, res) {
   console.log('Facebook request body:', req.body);
 
   if (!req.isXHubValid()) {
@@ -50,39 +50,69 @@ app.post('/facebook', function (req, res) {
   // Process the Facebook updates here
   received_updates.unshift(req.body);
 
-  // Extract information from the webhook request
-  let entry = req.body.entry[0];
-  let changes = entry.changes[0];
-  let value = changes.value;
-  let message = value.messages[0];
+  let body_param = req.body;
+  if (body_param.entry[0].changes[0].value.messages[0].type == "audio") {
+    let audio = body_param.entry[0].changes[0].value.messages[0].audio;
+    let audioId = body_param.entry[0].changes[0].value.messages[0].audio.id;
 
-  let phone_number_id = value.metadata.phone_number_id;
-  let from = message.from;
-  let msg_body = message.text.body;
+    let response = await axios({
+      method: "GET",
+      url: "https://graph.facebook.com/v19.0/" + audioId,
 
-  let data = JSON.stringify({
-    "messaging_product": "whatsapp",
-    "to": from,
-    "text": {
-      "body": "your message has been received : " + msg_body
-    }
-  });
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer ' + process.env.APP_TOKEN
+      }
 
-  let config = {
-    method: 'post',
-    maxBodyLength: Infinity,
-    url: 'https://graph.facebook.com/v20.0/393297853866738/messages',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer EAAOwxVUua2ABOZBoEWNVHU4xfuY1HZA9LTbfxK3U6wxfBjGbeR3CycWZAe9ek1C9Fy8dSYdh3ziT3QYIVE2LyAyPxZBZAZCMiELreGZB0RH5vMZANhqRnLtFw3XqjaOoT1zJuiJE05GBDzx2w5HdQnENb4PpyCQ24fkykZBkdbEMQGmAZACiKz0AhXNbFjIjNNZCfWhxx6FG3uAgqxYeZBtAXNCT52PRu8JZBIN5cPAZDZD'
-    },
-    data: data
-  };
+    });
 
-  axios(config)
-    .then(response => {
-      console.log('Message sent successfully');
-    })
+    let response_audio = await axios({
+      method: "GET",
+      url: response.data.url,
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer ' + process.env.APP_TOKEN
+      }
+    });
+    received_updates.unshift(response_audio);
+  } else if (body_param.entry[0].changes[0].value.messages[0].type == "text") {
+    // Extract information from the webhook request
+    let entry = req.body.entry[0];
+    let changes = entry.changes[0];
+    let value = changes.value;
+    let message = value.messages[0];
+    let phone_number_id = value.metadata.phone_number_id;
+    let from = message.from;
+    let msg_body = message.text.body;
+    // response to user message
+    let data = JSON.stringify({
+      "messaging_product": "whatsapp",
+      "to": from,
+      "text": {
+        "body": "your message has been received : " + msg_body
+      }
+    });
+
+    let config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://graph.facebook.com/v20.0/393297853866738/messages',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + process.env.APP_TOKEN
+      },
+      data: data
+    };
+
+    axios(config)
+      .then(response => {
+        console.log('Message sent successfully');
+      })
+  }
+
+
+
+
 
   res.sendStatus(200);
 });
