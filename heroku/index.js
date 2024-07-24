@@ -74,7 +74,7 @@ app.post('/facebook', async function (req, res) {
         'Authorization': 'Bearer ' + process.env.APP_TOKEN
       }
     });
-    received_updates.unshift(response_audio);
+    //received_updates.unshift(response_audio);
   } else if (body_param.entry[0].changes[0].value.messages[0].type == "text") {
     // Extract information from the webhook request
     let entry = req.body.entry[0];
