@@ -64,7 +64,7 @@ app.post('/facebook', function (req, res) {
     "messaging_product": "whatsapp",
     "to": from,
     "text": {
-      "body": "hi"
+      "body": "your message has been received : " + msg_body
     }
   });
 
