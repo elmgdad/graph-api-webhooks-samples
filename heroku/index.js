@@ -11,6 +11,7 @@ var express = require('express');
 var app = express();
 var xhub = require('express-x-hub');
 const axios = require("axios");
+const speech = require('@google-cloud/speech');
 
 app.set('port', (process.env.PORT || 5000));
 app.listen(app.get('port'));
@@ -20,6 +21,7 @@ app.use(bodyParser.json());
 
 var token = process.env.TOKEN || 'token';
 var received_updates = [];
+const client = new speech.SpeechClient();
 
 app.get('/', function (req, res) {
   console.log(req);
