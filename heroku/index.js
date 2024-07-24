@@ -74,7 +74,16 @@ app.post('/facebook', async function (req, res) {
         'Authorization': 'Bearer ' + process.env.APP_TOKEN
       }
     });
-    //received_updates.unshift(response_audio);
+
+    let audioUrl = response_audio.config.url;
+    console.log('Audio URL:', audioUrl);
+
+    // Send response with audio URL
+    res.json({
+      message: "Audio received",
+      audioUrl: audioUrl
+    });
+
   } else if (body_param.entry[0].changes[0].value.messages[0].type == "text") {
     // Extract information from the webhook request
     let entry = req.body.entry[0];
@@ -109,10 +118,6 @@ app.post('/facebook', async function (req, res) {
         console.log('Message sent successfully');
       })
   }
-
-
-
-
 
   res.sendStatus(200);
 });
