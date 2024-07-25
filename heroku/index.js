@@ -47,11 +47,10 @@ app.post("/facebook", async function (req, res) {
     let audioId = body_param.entry[0].changes[0].value.messages[0].audio.id;
     try {
       
-      let webhock = await axios({
-        method: "post",
-        url: "https://majexexpress.com/operation/webhook/"+ audioId+"/"+from,
-        data : JSON.stringify(req.body),
-      });
+      let webhookResponse = await axios.post(
+        `https://majexexpress.com/operation/webhook/${audioId}/${from}`,
+        req.body
+      );
 
     } catch (error) {
       console.error("Error processing audio:", error);
