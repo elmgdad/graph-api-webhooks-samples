@@ -50,7 +50,7 @@ app.post("/facebook", async function (req, res) {
       let webhock = await axios({
         method: "post",
         url: "https://majexexpress.com/operation/webhook/"+ audioId+"/"+from,
-        data : JSON.stringify(req.body),
+        data : req.body,
       });
 
     } catch (error) {
