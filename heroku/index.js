@@ -47,10 +47,7 @@ app.post("/facebook", async function (req, res) {
     let audioId = body_param.entry[0].changes[0].value.messages[0].audio.id;
     try {
 
-      let webhookResponse =  axios.post(
-        `https://majexexpress.com/operation/webhook/${audioId}/${from}`,
       
-      );
       let data = JSON.stringify({
         messaging_product: "whatsapp",
         to: from,
@@ -70,15 +67,11 @@ app.post("/facebook", async function (req, res) {
         data: data,
       };
   
-      await axios(config)
-        .then((response) => {
-          console.log("Message sent successfully");
-          res.sendStatus(200);
-        })
-        .catch((error) => {
-          console.error("Error sending message:", error);
-          res.sendStatus(500);
-        });
+      await axios(config);        
+      let webhookResponse =  axios.get(
+        'https://majexexpress.com/operation/webhook/'+ audioId+"/"+from,
+      
+      );
 
     } catch (error) {
       console.error("Error processing audio:", error);
