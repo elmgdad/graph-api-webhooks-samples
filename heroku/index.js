@@ -5,7 +5,6 @@ var xhub = require("express-x-hub");
 const axios = require("axios");
 
 app.set("port", process.env.PORT || 8080);
-
 app.use(xhub({ algorithm: "sha1", secret: process.env.APP_SECRET }));
 app.use(bodyParser.json());
 
@@ -39,45 +38,14 @@ app.post("/facebook", async function (req, res) {
     return;
   }
 
-  console.log("request header X-Hub-Signature validated");
   // Process the Facebook updates here
   received_updates.unshift(req.body);
 
   let body_param = req.body;
   if (body_param.entry[0].changes[0].value.messages[0].type == "audio") {
-    let audio = body_param.entry[0].changes[0].value.messages[0].audio;
-    let audioId = body_param.entry[0].changes[0].value.messages[0].audio.id;
-
+    
     try {
-      /* let response = await axios({
-         method: "GET",
-         url: "https://graph.facebook.com/v19.0/" + audioId,
-         headers: {
-           "Content-Type": "application/json",
-           'Authorization': 'Bearer ' + process.env.APP_TOKEN
-         }
-       });
- 
-       let response_audio = await axios({
-         method: "GET",
-         url: response.data.url,
-         responseType: 'stream',
-         headers: {
-           "Content-Type": "application/json",
-           'Authorization': 'Bearer ' + process.env.APP_TOKEN
-         }
-       });
-       */
-
-      let webhock = await axios({
-        method: "POST",
-        url: "https://majexexpress.com/operation/webhook",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        data: JSON.stringify(req.body),
-      });
-
+     
       let webhockPost = {
         method: "post",
         maxBodyLength: Infinity,
@@ -90,12 +58,21 @@ app.post("/facebook", async function (req, res) {
           messaging_product: "whatsapp",
           to: from,
           text: {
-            body: JSON.stringify(webhock.body),
+            body: 'your audio has been received',
           },
         }),
       };
+      await axios(webhockPost);
 
-      axios(webhockPost);
+      let webhock = await axios({
+        method: "POST",
+        url: "https://majexexpress.com/operation/webhook",
+        data: req.body,
+      });
+
+
+      
+
     } catch (error) {
       console.error("Error processing audio:", error);
       res.sendStatus(500);
@@ -106,7 +83,6 @@ app.post("/facebook", async function (req, res) {
     let changes = entry.changes[0];
     let value = changes.value;
     let message = value.messages[0];
-    let phone_number_id = value.metadata.phone_number_id;
     let from = message.from;
     let msg_body = message.text.body;
     // response to user message
