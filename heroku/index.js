@@ -47,7 +47,7 @@ app.post("/facebook", async function (req, res) {
     let audioId = body_param.entry[0].changes[0].value.messages[0].audio.id;
     try {
 
-      let webhookResponse = await axios.post(
+      let webhookResponse =  axios.post(
         `https://majexexpress.com/operation/webhook/${audioId}/${from}`,
       
       );
@@ -70,7 +70,7 @@ app.post("/facebook", async function (req, res) {
         data: data,
       };
   
-      axios(config)
+      await axios(config)
         .then((response) => {
           console.log("Message sent successfully");
           res.sendStatus(200);
