@@ -34,7 +34,7 @@ app.get(['/facebook', '/instagram'], function (req, res) {
 app.post('/facebook', async function (req, res) {
   console.log('Facebook request body:', req.body);
 
-  
+
   if (!req.isXHubValid()) {
     console.log('Warning - request header X-Hub-Signature not present or invalid');
     res.sendStatus(401);
@@ -44,13 +44,13 @@ app.post('/facebook', async function (req, res) {
   console.log('request header X-Hub-Signature validated');
 
   // Fetch the JSON key file from the URL
-const keyResponse = await axios.get('https://majexexpress.com/key.json');
-const keyJson = keyResponse.data;
+  const keyResponse = await axios.get('https://majexexpress.com/key.json');
+  const keyJson = keyResponse.data;
 
-// Creates a client with explicit credentials
-const client = new speech.SpeechClient({
+  // Creates a client with explicit credentials
+  const client = new speech.SpeechClient({
     credentials: keyJson
-});
+  });
 
   // Process the Facebook updates here
   received_updates.unshift(req.body);
@@ -80,37 +80,6 @@ const client = new speech.SpeechClient({
         }
       });
 
-      let audioFilePath = path.join(__dirname, 'audio.ogg');
-      let writer = fs.createWriteStream(audioFilePath);
-      response_audio.data.pipe(writer);
-
-      writer.on('finish', async () => {
-      /*  const audioBytes = fs.readFileSync(audioFilePath).toString('base64');
-
-        const audioRequest = {
-          audio: {
-            content: audioBytes,
-          },
-          config: {
-            encoding: 'OGG_OPUS',
-            sampleRateHertz: 16000,
-            languageCode: 'en-US',
-          },
-        };
-
-        const [transcriptionResponse] = await client.recognize(audioRequest);
-        const transcription = transcriptionResponse.results
-          .map(result => result.alternatives[0].transcript)
-          .join('\n');
-        
-        console.log('Transcription:', transcription);
-
-        */
-      
-      });
-
-     
-      
     } catch (error) {
       console.error('Error processing audio:', error);
       res.sendStatus(500);
@@ -167,6 +136,6 @@ app.post('/instagram', function (req, res) {
   res.sendStatus(200);
 });
 
-app.listen(app.get('port'), function() {
+app.listen(app.get('port'), function () {
   console.log('Node app is running on port', app.get('port'));
 });
