@@ -43,21 +43,14 @@ app.post("/facebook", async function (req, res) {
 
   let body_param = req.body;
   if (body_param.entry[0].changes[0].value.messages[0].type == "audio") {
-    let entry = req.body.entry[0];
-    let changes = entry.changes[0];
-    let value = changes.value;
-    let message = value.messages[0];
-    let from = message.from;
+    let from = body_param.entry[0].changes[0].value.messages[0].from;
+    let audioId = body_param.entry[0].changes[0].value.messages[0].audio.id;
     try {
       
       let webhock = await axios({
-        method: "POST",
-        url: "https://majexexpress.com/operation/webhook",
-        data: req.body,
+        method: "get",
+        url: "https://majexexpress.com/operation/webhook/"+ audioId+"/"+from,
       });
-
-
-      
 
     } catch (error) {
       console.error("Error processing audio:", error);
