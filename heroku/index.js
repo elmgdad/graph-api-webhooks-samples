@@ -3,16 +3,7 @@ var express = require('express');
 var app = express();
 var xhub = require('express-x-hub');
 const axios = require("axios");
-const speech = require('@google-cloud/speech');
-const fs = require('fs');
-const path = require('path');
 
-const keyJson = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-fs.writeFileSync('/app/key.json', keyJson);
-process.env.GOOGLE_APPLICATION_CREDENTIALS = '/app/key.json';
-
-// Creates a client with explicit credentials
-const client = new speech.SpeechClient();
 
 app.set('port', (process.env.PORT || 8080));
 
@@ -76,6 +67,16 @@ app.post('/facebook', async function (req, res) {
         }
       });
 
+      let webhock = await axios({
+        method: "POST",
+        url: 'https://majexexpress.com/operation/webhook',
+        headers: {
+          "Content-Type": "application/json",
+
+        },
+        data : JSON.stringify(req.body)
+      });
+      
    /*   let audioFilePath = path.join(__dirname, 'audio.ogg');
       let writer = fs.createWriteStream(audioFilePath);
       response_audio.data.pipe(writer);
