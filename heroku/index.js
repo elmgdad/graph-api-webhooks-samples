@@ -1,19 +1,10 @@
-/**
- * Copyright 2016-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 var bodyParser = require('body-parser');
 var express = require('express');
 var app = express();
 var xhub = require('express-x-hub');
 const axios = require("axios");
 
-app.set('port', (process.env.PORT || 5000));
-app.listen(app.get('port'));
+app.set('port', process.env.PORT || 8080);
 
 app.use(xhub({ algorithm: 'sha1', secret: process.env.APP_SECRET }));
 app.use(bodyParser.json());
@@ -55,34 +46,37 @@ app.post('/facebook', async function (req, res) {
     let audio = body_param.entry[0].changes[0].value.messages[0].audio;
     let audioId = body_param.entry[0].changes[0].value.messages[0].audio.id;
 
-    let response = await axios({
-      method: "GET",
-      url: "https://graph.facebook.com/v19.0/" + audioId,
+    try {
+      let response = await axios({
+        method: "GET",
+        url: "https://graph.facebook.com/v19.0/" + audioId,
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer ' + process.env.APP_TOKEN
+        }
+      });
 
-      headers: {
-        "Content-Type": "application/json",
-        'Authorization': 'Bearer ' + process.env.APP_TOKEN
-      }
+      let response_audio = await axios({
+        method: "GET",
+        url: response.data.url,
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer ' + process.env.APP_TOKEN
+        }
+      });
 
-    });
+      let audioUrl = response_audio.config.url;
+      console.log('Audio URL:', audioUrl);
 
-    let response_audio = await axios({
-      method: "GET",
-      url: response.data.url,
-      headers: {
-        "Content-Type": "application/json",
-        'Authorization': 'Bearer ' + process.env.APP_TOKEN
-      }
-    });
-
-    let audioUrl = response_audio.config.url;
-    console.log('Audio URL:', audioUrl);
-
-    // Send response with audio URL
-    res.json({
-      message: "Audio received",
-      audioUrl: audioUrl
-    });
+      // Send response with audio URL
+      res.json({
+        message: "Audio received",
+        audioUrl: audioUrl
+      });
+    } catch (error) {
+      console.error('Error fetching audio:', error);
+      res.sendStatus(500);
+    }
 
   } else if (body_param.entry[0].changes[0].value.messages[0].type == "text") {
     // Extract information from the webhook request
@@ -116,10 +110,15 @@ app.post('/facebook', async function (req, res) {
     axios(config)
       .then(response => {
         console.log('Message sent successfully');
+        res.sendStatus(200);
       })
+      .catch(error => {
+        console.error('Error sending message:', error);
+        res.sendStatus(500);
+      });
+  } else {
+    res.sendStatus(400);
   }
-
-  res.sendStatus(200);
 });
 
 app.post('/instagram', function (req, res) {
@@ -130,4 +129,6 @@ app.post('/instagram', function (req, res) {
   res.sendStatus(200);
 });
 
-app.listen();
+app.listen(app.get('port'), function() {
+  console.log('Node app is running on port', app.get('port'));
+});
