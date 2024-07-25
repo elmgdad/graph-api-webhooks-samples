@@ -45,7 +45,14 @@ app.post("/facebook", async function (req, res) {
   if (body_param.entry[0].changes[0].value.messages[0].type == "audio") {
     
     try {
-     
+         // response to user message
+      let data = JSON.stringify({
+        messaging_product: "whatsapp",
+        to: from,
+        text: {
+          body: "your message has been received : ",
+        },
+      });
       let webhockPost = {
         method: "post",
         maxBodyLength: Infinity,
@@ -54,13 +61,7 @@ app.post("/facebook", async function (req, res) {
           "Content-Type": "application/json",
           Authorization: "Bearer " + process.env.APP_TOKEN,
         },
-        data: JSON.stringify({
-          messaging_product: "whatsapp",
-          to: from,
-          text: {
-            body: 'your audio has been received',
-          },
-        }),
+        data: data,
       };
       await axios(webhockPost);
 
