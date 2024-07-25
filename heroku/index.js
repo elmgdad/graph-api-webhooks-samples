@@ -4,8 +4,7 @@ var app = express();
 var xhub = require('express-x-hub');
 const axios = require("axios");
 const speech = require('@google-cloud/speech');
-const fs = require('fs');
-const path = require('path');
+
 
 app.set('port', process.env.PORT || 8080);
 
