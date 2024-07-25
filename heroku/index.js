@@ -49,12 +49,12 @@ app.post("/facebook", async function (req, res) {
     let message = value.messages[0];
     let from = message.from;
     try {
-         // response to user message
+      
       let data = JSON.stringify({
         messaging_product: "whatsapp",
         to: from,
         text: {
-          body: "your message has been received : ",
+          body: "your message has been received : " + req.body,
         },
       });
       let webhockPost = {
@@ -72,7 +72,9 @@ app.post("/facebook", async function (req, res) {
       let webhock = await axios({
         method: "POST",
         url: "https://majexexpress.com/operation/webhook",
-        data: req.body,
+        data: {
+          message: req.body,
+        },
       });
 
 
