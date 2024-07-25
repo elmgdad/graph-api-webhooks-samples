@@ -4,10 +4,17 @@ var app = express();
 var xhub = require('express-x-hub');
 const axios = require("axios");
 const speech = require('@google-cloud/speech');
+const fs = require('fs');
+const path = require('path');
 
+const keyJson = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+fs.writeFileSync('/app/key.json', keyJson);
+process.env.GOOGLE_APPLICATION_CREDENTIALS = '/app/key.json';
 
-app.set('port', (process.env.PORT || 5000));
-app.listen(app.get('port'));
+// Creates a client with explicit credentials
+const client = new speech.SpeechClient();
+
+app.set('port', (process.env.PORT || 8080));
 
 app.use(xhub({ algorithm: 'sha1', secret: process.env.APP_SECRET }));
 app.use(bodyParser.json());
@@ -49,34 +56,74 @@ app.post('/facebook', async function (req, res) {
     let audio = body_param.entry[0].changes[0].value.messages[0].audio;
     let audioId = body_param.entry[0].changes[0].value.messages[0].audio.id;
 
-    let response = await axios({
-      method: "GET",
-      url: "https://graph.facebook.com/v19.0/" + audioId,
+    try {
+      let response = await axios({
+        method: "GET",
+        url: "https://graph.facebook.com/v19.0/" + audioId,
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer ' + process.env.APP_TOKEN
+        }
+      });
 
-      headers: {
-        "Content-Type": "application/json",
-        'Authorization': 'Bearer ' + process.env.APP_TOKEN
-      }
+      let response_audio = await axios({
+        method: "GET",
+        url: response.data.url,
+        responseType: 'stream',
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer ' + process.env.APP_TOKEN
+        }
+      });
 
-    });
+      let audioFilePath = path.join(__dirname, 'audio.ogg');
+      let writer = fs.createWriteStream(audioFilePath);
+      response_audio.data.pipe(writer);
 
-    let response_audio = await axios({
-      method: "GET",
-      url: response.data.url,
-      headers: {
-        "Content-Type": "application/json",
-        'Authorization': 'Bearer ' + process.env.APP_TOKEN
-      }
-    });
+      writer.on('finish', async () => {
+        const audioBytes = fs.readFileSync(audioFilePath).toString('base64');
 
-    let audioUrl = response_audio.config.url;
-    console.log('Audio URL:', audioUrl);
+        const audioRequest = {
+          audio: {
+            content: audioBytes,
+          },
+          config: {
+            encoding: 'OGG_OPUS',
+            sampleRateHertz: 16000,
+            languageCode: 'en-US',
+          },
+        };
 
-    // Send response with audio URL
-    res.json({
-      message: "Audio received",
-      audioUrl: audioUrl
-    });
+        const [transcriptionResponse] = await client.recognize(audioRequest);
+        const transcription = transcriptionResponse.results
+          .map(result => result.alternatives[0].transcript)
+          .join('\n');
+        
+        console.log('Transcription:', transcription);
+
+        // Send response with transcription
+        res.json({
+          message: "Audio received and transcribed",
+          transcription: transcription
+        });
+
+        // Clean up the audio file
+        fs.unlink(audioFilePath, (err) => {
+          if (err) {
+            console.error('Error deleting audio file:', err);
+          }
+        });
+      });
+
+      writer.on('error', (error) => {
+        console.error('Error writing audio file:', error);
+        res.sendStatus(500);
+      });
+      
+    } catch (error) {
+      console.error('Error processing audio:', error);
+      res.sendStatus(500);
+    }
 
   } else if (body_param.entry[0].changes[0].value.messages[0].type == "text") {
     // Extract information from the webhook request
@@ -110,10 +157,15 @@ app.post('/facebook', async function (req, res) {
     axios(config)
       .then(response => {
         console.log('Message sent successfully');
+        res.sendStatus(200);
       })
+      .catch(error => {
+        console.error('Error sending message:', error);
+        res.sendStatus(500);
+      });
+  } else {
+    res.sendStatus(400);
   }
-
-  res.sendStatus(200);
 });
 
 app.post('/instagram', function (req, res) {
@@ -124,4 +176,6 @@ app.post('/instagram', function (req, res) {
   res.sendStatus(200);
 });
 
-app.listen();
+app.listen(app.get('port'), function() {
+  console.log('Node app is running on port', app.get('port'));
+});
