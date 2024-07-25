@@ -6,14 +6,11 @@ const axios = require("axios");
 const speech = require('@google-cloud/speech');
 const fs = require('fs');
 const path = require('path');
-const { promisify } = require('util');
 
 app.set('port', process.env.PORT || 8080);
 
 app.use(xhub({ algorithm: 'sha1', secret: process.env.APP_SECRET }));
 app.use(bodyParser.json());
-
-
 
 var token = process.env.TOKEN || 'token';
 var received_updates = [];
@@ -37,15 +34,7 @@ app.get(['/facebook', '/instagram'], function (req, res) {
 app.post('/facebook', async function (req, res) {
   console.log('Facebook request body:', req.body);
 
-  // Fetch the JSON key file from the URL
-  const keyResponse = await axios.get('https://majexexpress.com/key.json');
-  const keyJson = keyResponse.data;
-
-  // Creates a client with explicit credentials
-  const client = new speech.SpeechClient({
-      credentials: keyJson
-  });
-
+  
   if (!req.isXHubValid()) {
     console.log('Warning - request header X-Hub-Signature not present or invalid');
     res.sendStatus(401);
@@ -53,6 +42,16 @@ app.post('/facebook', async function (req, res) {
   }
 
   console.log('request header X-Hub-Signature validated');
+
+  // Fetch the JSON key file from the URL
+const keyResponse = await axios.get('https://majexexpress.com/key.json');
+const keyJson = keyResponse.data;
+
+// Creates a client with explicit credentials
+const client = new speech.SpeechClient({
+    credentials: keyJson
+});
+
   // Process the Facebook updates here
   received_updates.unshift(req.body);
 
