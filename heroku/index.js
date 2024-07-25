@@ -3,7 +3,6 @@ var express = require('express');
 var app = express();
 var xhub = require('express-x-hub');
 const axios = require("axios");
-const speech = require('@google-cloud/speech');
 
 
 app.set('port', (process.env.PORT || 5000));
