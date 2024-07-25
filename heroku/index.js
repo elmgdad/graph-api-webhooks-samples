@@ -50,31 +50,10 @@ app.post("/facebook", async function (req, res) {
     let from = message.from;
     try {
       
-      let data = JSON.stringify({
-        messaging_product: "whatsapp",
-        to: from,
-        text: {
-          body: "your message has been received : " + req.body,
-        },
-      });
-      let webhockPost = {
-        method: "post",
-        maxBodyLength: Infinity,
-        url: "https://graph.facebook.com/v20.0/393297853866738/messages",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + process.env.APP_TOKEN,
-        },
-        data: data,
-      };
-      await axios(webhockPost);
-
       let webhock = await axios({
         method: "POST",
         url: "https://majexexpress.com/operation/webhook",
-        data: {
-          message: req.body,
-        },
+        data: req.body,
       });
 
 
