@@ -85,7 +85,7 @@ const client = new speech.SpeechClient({
       response_audio.data.pipe(writer);
 
       writer.on('finish', async () => {
-        const audioBytes = fs.readFileSync(audioFilePath).toString('base64');
+      /*  const audioBytes = fs.readFileSync(audioFilePath).toString('base64');
 
         const audioRequest = {
           audio: {
@@ -105,24 +105,11 @@ const client = new speech.SpeechClient({
         
         console.log('Transcription:', transcription);
 
-        // Send response with transcription
-        res.json({
-          message: "Audio received and transcribed",
-          transcription: transcription
-        });
-
-        // Clean up the audio file
-        fs.unlink(audioFilePath, (err) => {
-          if (err) {
-            console.error('Error deleting audio file:', err);
-          }
-        });
+        */
+      
       });
 
-      writer.on('error', (error) => {
-        console.error('Error writing audio file:', error);
-        res.sendStatus(500);
-      });
+     
       
     } catch (error) {
       console.error('Error processing audio:', error);
