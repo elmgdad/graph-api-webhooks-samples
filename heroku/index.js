@@ -3,10 +3,9 @@ var express = require('express');
 var app = express();
 var xhub = require('express-x-hub');
 const axios = require("axios");
-const speech = require('@google-cloud/speech');
 
-
-app.set('port', process.env.PORT || 8080);
+app.set('port', (process.env.PORT || 5000));
+app.listen(app.get('port'));
 
 app.use(xhub({ algorithm: 'sha1', secret: process.env.APP_SECRET }));
 app.use(bodyParser.json());
@@ -33,7 +32,6 @@ app.get(['/facebook', '/instagram'], function (req, res) {
 app.post('/facebook', async function (req, res) {
   console.log('Facebook request body:', req.body);
 
-
   if (!req.isXHubValid()) {
     console.log('Warning - request header X-Hub-Signature not present or invalid');
     res.sendStatus(401);
@@ -41,16 +39,6 @@ app.post('/facebook', async function (req, res) {
   }
 
   console.log('request header X-Hub-Signature validated');
-
-  // Fetch the JSON key file from the URL
-  const keyResponse = await axios.get('https://majexexpress.com/key.json');
-  const keyJson = keyResponse.data;
-
-  // Creates a client with explicit credentials
-  const client = new speech.SpeechClient({
-    credentials: keyJson
-  });
-
   // Process the Facebook updates here
   received_updates.unshift(req.body);
 
@@ -59,30 +47,34 @@ app.post('/facebook', async function (req, res) {
     let audio = body_param.entry[0].changes[0].value.messages[0].audio;
     let audioId = body_param.entry[0].changes[0].value.messages[0].audio.id;
 
-    try {
-      let response = await axios({
-        method: "GET",
-        url: "https://graph.facebook.com/v19.0/" + audioId,
-        headers: {
-          "Content-Type": "application/json",
-          'Authorization': 'Bearer ' + process.env.APP_TOKEN
-        }
-      });
+    let response = await axios({
+      method: "GET",
+      url: "https://graph.facebook.com/v19.0/" + audioId,
 
-      let response_audio = await axios({
-        method: "GET",
-        url: response.data.url,
-        responseType: 'stream',
-        headers: {
-          "Content-Type": "application/json",
-          'Authorization': 'Bearer ' + process.env.APP_TOKEN
-        }
-      });
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer ' + process.env.APP_TOKEN
+      }
 
-    } catch (error) {
-      console.error('Error processing audio:', error);
-      res.sendStatus(500);
-    }
+    });
+
+    let response_audio = await axios({
+      method: "GET",
+      url: response.data.url,
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer ' + process.env.APP_TOKEN
+      }
+    });
+
+    let audioUrl = response_audio.config.url;
+    console.log('Audio URL:', audioUrl);
+
+    // Send response with audio URL
+    res.json({
+      message: "Audio received",
+      audioUrl: audioUrl
+    });
 
   } else if (body_param.entry[0].changes[0].value.messages[0].type == "text") {
     // Extract information from the webhook request
@@ -116,15 +108,10 @@ app.post('/facebook', async function (req, res) {
     axios(config)
       .then(response => {
         console.log('Message sent successfully');
-        res.sendStatus(200);
       })
-      .catch(error => {
-        console.error('Error sending message:', error);
-        res.sendStatus(500);
-      });
-  } else {
-    res.sendStatus(400);
   }
+
+  res.sendStatus(200);
 });
 
 app.post('/instagram', function (req, res) {
@@ -135,6 +122,4 @@ app.post('/instagram', function (req, res) {
   res.sendStatus(200);
 });
 
-app.listen(app.get('port'), function () {
-  console.log('Node app is running on port', app.get('port'));
-});
+app.listen();
