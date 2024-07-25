@@ -76,7 +76,7 @@ app.post('/facebook', async function (req, res) {
         }
       });
 
-      let audioFilePath = path.join(__dirname, 'audio.ogg');
+   /*   let audioFilePath = path.join(__dirname, 'audio.ogg');
       let writer = fs.createWriteStream(audioFilePath);
       response_audio.data.pipe(writer);
 
@@ -118,7 +118,7 @@ app.post('/facebook', async function (req, res) {
       writer.on('error', (error) => {
         console.error('Error writing audio file:', error);
         res.sendStatus(500);
-      });
+      });*/
       
     } catch (error) {
       console.error('Error processing audio:', error);
