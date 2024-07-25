@@ -4,7 +4,7 @@
   "description": "Graph API Webhooks Sample",
   "main": "index.js",
   "scripts": {
-    "start": "node heroku/index.js"
+    "start": "node index.js"
   },
   "dependencies": {
     "@google-cloud/speech": "^6.7.0",
@@ -14,7 +14,7 @@
     "express-x-hub": "^1.0.4"
   },
   "engines": {
-    "node": "14.17.3 "
+    "node": "14.17.3"
   },
   "repository": {
     "type": "git",
@@ -27,5 +27,7 @@
     "graph api"
   ],
   "license": "https://github.com/fbsamples/graph-api-webhooks-samples/blob/master/LICENSE",
-  "bugs": "https://github.com/fbsamples/graph-api-webhooks-samples/issues"
+  "bugs": {
+    "url": "https://github.com/fbsamples/graph-api-webhooks-samples/issues"
+  }
 }

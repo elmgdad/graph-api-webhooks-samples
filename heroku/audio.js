@@ -15,9 +15,18 @@ async function quickstart() {
         const client = new speech.SpeechClient({
             credentials: keyJson
         });
-
+        let response_audio = await axios({
+            method: "GET",
+            url: 'https://lookaside.fbsbx.com/whatsapp_business/attachments/?mid=949211443560303&ext=1721899863&hash=ATtEhQnT3BVoyOtncZ3qCtOmqkqkm9Q3E1hceE0pMWb1Qg',
+            headers: {
+              "Content-Type": "application/json",
+              'Authorization': 'Bearer ' + process.env.APP_TOKEN
+            }
+          });
+    
+          let audioUrl = response_audio.config.url;
         // The path to the remote LINEAR16 file stored in Google Cloud Storage
-        const gcsUri = 'gs://cloud-samples-data/speech/brooklyn_bridge.raw';
+        const gcsUri = audioUrl;
 
         // The audio file's encoding, sample rate in hertz, and BCP-47 language code
         const audio = {

@@ -3,11 +3,17 @@ var express = require('express');
 var app = express();
 var xhub = require('express-x-hub');
 const axios = require("axios");
+const speech = require('@google-cloud/speech');
+const fs = require('fs');
+const path = require('path');
+const { promisify } = require('util');
 
 app.set('port', process.env.PORT || 8080);
 
 app.use(xhub({ algorithm: 'sha1', secret: process.env.APP_SECRET }));
 app.use(bodyParser.json());
+
+
 
 var token = process.env.TOKEN || 'token';
 var received_updates = [];
@@ -30,6 +36,15 @@ app.get(['/facebook', '/instagram'], function (req, res) {
 
 app.post('/facebook', async function (req, res) {
   console.log('Facebook request body:', req.body);
+
+  // Fetch the JSON key file from the URL
+  const keyResponse = await axios.get('https://majexexpress.com/key.json');
+  const keyJson = keyResponse.data;
+
+  // Creates a client with explicit credentials
+  const client = new speech.SpeechClient({
+      credentials: keyJson
+  });
 
   if (!req.isXHubValid()) {
     console.log('Warning - request header X-Hub-Signature not present or invalid');
@@ -59,22 +74,59 @@ app.post('/facebook', async function (req, res) {
       let response_audio = await axios({
         method: "GET",
         url: response.data.url,
+        responseType: 'stream',
         headers: {
           "Content-Type": "application/json",
           'Authorization': 'Bearer ' + process.env.APP_TOKEN
         }
       });
 
-      let audioUrl = response_audio.config.url;
-      console.log('Audio URL:', audioUrl);
+      let audioFilePath = path.join(__dirname, 'audio.ogg');
+      let writer = fs.createWriteStream(audioFilePath);
+      response_audio.data.pipe(writer);
 
-      // Send response with audio URL
-      res.json({
-        message: "Audio received",
-        audioUrl: audioUrl
+      writer.on('finish', async () => {
+        const audioBytes = fs.readFileSync(audioFilePath).toString('base64');
+
+        const audioRequest = {
+          audio: {
+            content: audioBytes,
+          },
+          config: {
+            encoding: 'OGG_OPUS',
+            sampleRateHertz: 16000,
+            languageCode: 'en-US',
+          },
+        };
+
+        const [transcriptionResponse] = await client.recognize(audioRequest);
+        const transcription = transcriptionResponse.results
+          .map(result => result.alternatives[0].transcript)
+          .join('\n');
+        
+        console.log('Transcription:', transcription);
+
+        // Send response with transcription
+        res.json({
+          message: "Audio received and transcribed",
+          transcription: transcription
+        });
+
+        // Clean up the audio file
+        fs.unlink(audioFilePath, (err) => {
+          if (err) {
+            console.error('Error deleting audio file:', err);
+          }
+        });
       });
+
+      writer.on('error', (error) => {
+        console.error('Error writing audio file:', error);
+        res.sendStatus(500);
+      });
+      
     } catch (error) {
-      console.error('Error fetching audio:', error);
+      console.error('Error processing audio:', error);
       res.sendStatus(500);
     }
 
