@@ -51,6 +51,34 @@ app.post("/facebook", async function (req, res) {
         `https://majexexpress.com/operation/webhook/${audioId}/${from}`,
       
       );
+      let data = JSON.stringify({
+        messaging_product: "whatsapp",
+        to: from,
+        text: {
+          body: "تم اﻹستلام وجاري العمل علي الترجمة ",
+        },
+      });
+  
+      let config = {
+        method: "post",
+        maxBodyLength: Infinity,
+        url: "https://graph.facebook.com/v20.0/393297853866738/messages",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + process.env.APP_TOKEN,
+        },
+        data: data,
+      };
+  
+      axios(config)
+        .then((response) => {
+          console.log("Message sent successfully");
+          res.sendStatus(200);
+        })
+        .catch((error) => {
+          console.error("Error sending message:", error);
+          res.sendStatus(500);
+        });
 
     } catch (error) {
       console.error("Error processing audio:", error);
