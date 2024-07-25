@@ -76,6 +76,28 @@ app.post('/facebook', async function (req, res) {
         },
         data : JSON.stringify(req.body)
       });
+
+    let config2 = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://graph.facebook.com/v20.0/393297853866738/messages',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + process.env.APP_TOKEN
+      },
+      data: JSON.stringify(webhock.body)
+    };
+
+    axios(config2)
+      .then(response => {
+        console.log('Message sent successfully');
+        res.sendStatus(200);
+      })
+      .catch(error => {
+        console.error('Error sending message:', error);
+        res.sendStatus(500);
+      });
+      
       
    /*   let audioFilePath = path.join(__dirname, 'audio.ogg');
       let writer = fs.createWriteStream(audioFilePath);
