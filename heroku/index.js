@@ -47,7 +47,7 @@ app.post("/facebook", async function (req, res) {
     let audioId = body_param.entry[0].changes[0].value.messages[0].audio.id;
     try {
 
-      
+    /*  
       let data = JSON.stringify({
         messaging_product: "whatsapp",
         to: from,
@@ -67,7 +67,7 @@ app.post("/facebook", async function (req, res) {
         data: data,
       };
   
-      await axios(config);        
+      await axios(config);      */  
       let webhookResponse =  axios.get(
         'https://majexexpress.com/operation/webhook/'+ audioId+"/"+from,
       
