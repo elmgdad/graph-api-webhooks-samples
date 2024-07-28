@@ -89,7 +89,7 @@ app.post("/facebook", async function (req, res) {
     // response to user message
     let data = JSON.stringify({
       messaging_product: "whatsapp",
-      to: from,
+      to: "96680701918",
       text: {
         body: "your message has been received : " + msg_body,
       },
