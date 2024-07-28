@@ -47,25 +47,6 @@ app.post("/facebook", async function (req, res) {
     let audioId = body_param.entry[0].changes[0].value.messages[0].audio.id;
     try {
 
-      
-      let data = JSON.stringify({
-        messaging_product: "whatsapp",
-        to: from,
-        text: {
-          body: "تم اﻹستلام وجاري العمل علي الترجمة ",
-        },
-      });
-  
-      let config = {
-        method: "post",
-        maxBodyLength: Infinity,
-        url: "https://graph.facebook.com/v20.0/393297853866738/messages",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + process.env.APP_TOKEN,
-        },
-        data: data,
-      };
   
       await axios(config).then((response) => {
         axios.get(
