@@ -3,10 +3,12 @@ var express = require("express");
 var app = express();
 var xhub = require("express-x-hub");
 const axios = require("axios");
+const FormData = require('form-data');
 
 app.set("port", process.env.PORT || 8080);
 app.use(xhub({ algorithm: "sha1", secret: process.env.APP_SECRET }));
 app.use(bodyParser.json());
+let data = new FormData();
 
 var token = process.env.TOKEN || "token";
 var received_updates = [];
@@ -45,14 +47,35 @@ app.post("/facebook", async function (req, res) {
   if (body_param.entry[0].changes[0].value.messages[0].type == "audio") {
     let from = body_param.entry[0].changes[0].value.messages[0].from;
     let audioId = body_param.entry[0].changes[0].value.messages[0].audio.id;
+    let msgId = body_param.entry[0].changes[0].value.messages[0].id;
+
     try {
 
-  
-      await axios(config).then((response) => {
-        axios.get(
-          'https://majexexpress.com/operation/webhook/'+ audioId+"/"+from,
-        )
-      });        
+      data.append('audio_id', audioId);
+      data.append('from_number', from);
+      data.append('access_token', process.env.APP_TOKEN);
+      data.append('msg_id', msgId);
+
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'http://34.18.3.148:8082/transcribe',
+        headers: {
+          'Authorization': "Bearer " + process.env.APP_TOKEN,
+          ...data.getHeaders()
+        },
+        data: data
+      };
+
+      axios.request(config)
+        .then((response) => {
+          console.log(JSON.stringify(response.data));
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+
       res.sendStatus(200);
 
     } catch (error) {
