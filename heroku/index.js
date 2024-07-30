@@ -123,6 +123,7 @@ app.post("/facebook", async function (req, res) {
         console.error("Error sending message:", error);
         res.sendStatus(500);
       });
+      res.sendStatus(200);
   } else {
     res.sendStatus(400);
   }
