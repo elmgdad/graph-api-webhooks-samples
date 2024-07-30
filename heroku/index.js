@@ -12,6 +12,37 @@ var token = process.env.TOKEN || "token";
 var received_updates = [];
 
 app.get("/", function (req, res) {
+  let data = JSON.stringify({
+    "messaging_product": "whatsapp",
+    "to": "966500385025",
+    "type": "template",
+    "template": {
+      "name": "hello_world",
+      "language": {
+        "code": "en_US"
+      }
+    }
+  });
+
+
+  let config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: 'https://graph.facebook.com/v20.0/393297853866738/messages',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer EAAOwxVUua2ABO89bypQ9jwe9OcLfiZAMdtIX5ihuxZBoR4gKSIXjyODMsJK7eRu3zpCM23zZCjRPDnwULks73B58vWWoyya16qCmQFFgIV1QkIk0kvNHZCdXqW5BlXo8M6VCA2CtJwy5AtEduQkTWELblfVteyi1cpaOug3NR0f4QApdBteo8bfuPpIZBZCEE0nwZDZD'
+    },
+    data: data
+  };
+
+  axios.request(config)
+    .then((response) => {
+      console.log("done");
+    })
+    .catch((error) => {
+      console.log( JSON.stringify(error));
+    });
   console.log(req);
   res.send("main <pre>" + JSON.stringify(received_updates, null, 2) + "</pre>");
 });
@@ -30,13 +61,13 @@ app.get(["/facebook", "/instagram"], function (req, res) {
 app.post("/facebook", async function (req, res) {
   console.log("Facebook request body:", req.body);
 
-  if (!req.isXHubValid()) {
-    console.log(
-      "Warning - request header X-Hub-Signature not present or invalid"
-    );
-    res.sendStatus(401);
-    return;
-  }
+  // if (!req.isXHubValid()) {
+  //   console.log(
+  //     "Warning - request header X-Hub-Signature not present or invalid"
+  //   );
+  //   res.sendStatus(401);
+  //   return;
+  // }
 
   // Process the Facebook updates here
   received_updates.unshift(req.body);
@@ -58,30 +89,30 @@ app.post("/facebook", async function (req, res) {
         }
       });
 
-  
-    let config = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: 'https://graph.facebook.com/v20.0/393297853866738/messages',
-      headers: { 
-        'Content-Type': 'application/json', 
-        'Authorization': 'EAAOwxVUua2ABO89bypQ9jwe9OcLfiZAMdtIX5ihuxZBoR4gKSIXjyODMsJK7eRu3zpCM23zZCjRPDnwULks73B58vWWoyya16qCmQFFgIV1QkIk0kvNHZCdXqW5BlXo8M6VCA2CtJwy5AtEduQkTWELblfVteyi1cpaOug3NR0f4QApdBteo8bfuPpIZBZCEE0nwZDZD'
-      },
-      data : data
-    };
 
-    axios.request(config)
-    .then((response) => {
-      console.log(JSON.stringify(response.data));
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://graph.facebook.com/v20.0/393297853866738/messages',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer EAAOwxVUua2ABO89bypQ9jwe9OcLfiZAMdtIX5ihuxZBoR4gKSIXjyODMsJK7eRu3zpCM23zZCjRPDnwULks73B58vWWoyya16qCmQFFgIV1QkIk0kvNHZCdXqW5BlXo8M6VCA2CtJwy5AtEduQkTWELblfVteyi1cpaOug3NR0f4QApdBteo8bfuPpIZBZCEE0nwZDZD'
+        },
+        data: data
+      };
+
+      axios.request(config)
+        .then((response) => {
+          console.log(JSON.stringify(response.data));
+        })
+        .catch((error) => {
+          console.log(error);
+        });
       await axios(config).then((response) => {
         axios.get(
-          'https://majexexpress.com/operation/webhook/'+ audioId+"/"+from,
+          'https://majexexpress.com/operation/webhook/' + audioId + "/" + from,
         )
-      });        
+      });
       res.sendStatus(200);
 
     } catch (error) {
