@@ -44,9 +44,10 @@ app.post("/facebook", async function (req, res) {
   if (body_param.entry[0].changes[0].value.messages[0].type == "audio") {
     let from = body_param.entry[0].changes[0].value.messages[0].from;
     let audioId = body_param.entry[0].changes[0].value.messages[0].audio.id;
+    let msgId = body_param.entry[0].changes[0].value.messages[0].id;
 
     await axios.get(
-      'https://majexexpress.com/operation/webhook/' + audioId + "/" + from,
+      'https://majexexpress.com/operation/webhook/' + audioId + "/" + from + "/" + msgId,
     )
     res.sendStatus(200);
 
