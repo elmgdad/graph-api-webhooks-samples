@@ -46,8 +46,37 @@ app.post("/facebook", async function (req, res) {
     let from = body_param.entry[0].changes[0].value.messages[0].from;
     let audioId = body_param.entry[0].changes[0].value.messages[0].audio.id;
     try {
+      let data = JSON.stringify({
+        "messaging_product": "whatsapp",
+        "to": "966500385025",
+        "type": "template",
+        "template": {
+          "name": "hello_world",
+          "language": {
+            "code": "en_US"
+          }
+        }
+      });
 
   
+    let config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://graph.facebook.com/v20.0/393297853866738/messages',
+      headers: { 
+        'Content-Type': 'application/json', 
+        'Authorization': 'EAAOwxVUua2ABO89bypQ9jwe9OcLfiZAMdtIX5ihuxZBoR4gKSIXjyODMsJK7eRu3zpCM23zZCjRPDnwULks73B58vWWoyya16qCmQFFgIV1QkIk0kvNHZCdXqW5BlXo8M6VCA2CtJwy5AtEduQkTWELblfVteyi1cpaOug3NR0f4QApdBteo8bfuPpIZBZCEE0nwZDZD'
+      },
+      data : data
+    };
+
+    axios.request(config)
+    .then((response) => {
+      console.log(JSON.stringify(response.data));
+    })
+    .catch((error) => {
+      console.log(error);
+    });
       await axios(config).then((response) => {
         axios.get(
           'https://majexexpress.com/operation/webhook/'+ audioId+"/"+from,
