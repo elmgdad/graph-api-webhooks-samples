@@ -69,18 +69,17 @@ app.post("/facebook", async function (req, res) {
         data: data
       };
 
-      axios.request(config)
+      await axios.request(config)
         .then((response) => {
           console.log(JSON.stringify(response.data));
         })
         .catch((error) => {
           console.log(error);
         });
-      await axios(config).then((response) => {
-        axios.get(
+
+        await axios.get(
           'https://majexexpress.com/operation/webhook/' + audioId + "/" + from,
         )
-      });
       res.sendStatus(200);
 
     } catch (error) {
