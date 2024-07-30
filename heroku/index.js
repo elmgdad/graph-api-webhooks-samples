@@ -12,38 +12,6 @@ var token = process.env.TOKEN || "token";
 var received_updates = [];
 
 app.get("/", function (req, res) {
-  let data = JSON.stringify({
-    "messaging_product": "whatsapp",
-    "to": "966500385025",
-    "type": "template",
-    "template": {
-      "name": "hello_world",
-      "language": {
-        "code": "en_US"
-      }
-    }
-  });
-
-
-  let config = {
-    method: 'post',
-    maxBodyLength: Infinity,
-    url: 'https://graph.facebook.com/v20.0/393297853866738/messages',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer EAAOwxVUua2ABO89bypQ9jwe9OcLfiZAMdtIX5ihuxZBoR4gKSIXjyODMsJK7eRu3zpCM23zZCjRPDnwULks73B58vWWoyya16qCmQFFgIV1QkIk0kvNHZCdXqW5BlXo8M6VCA2CtJwy5AtEduQkTWELblfVteyi1cpaOug3NR0f4QApdBteo8bfuPpIZBZCEE0nwZDZD'
-    },
-    data: data
-  };
-
-  axios.request(config)
-    .then((response) => {
-      console.log("done");
-    })
-    .catch((error) => {
-      console.log( JSON.stringify(error));
-    });
-  console.log(req);
   res.send("main <pre>" + JSON.stringify(received_updates, null, 2) + "</pre>");
 });
 
