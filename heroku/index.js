@@ -44,48 +44,13 @@ app.post("/facebook", async function (req, res) {
   if (body_param.entry[0].changes[0].value.messages[0].type == "audio") {
     let from = body_param.entry[0].changes[0].value.messages[0].from;
     let audioId = body_param.entry[0].changes[0].value.messages[0].audio.id;
-    try {
-      let data = JSON.stringify({
-        "messaging_product": "whatsapp",
-        "to": "966500385025",
-        "type": "template",
-        "template": {
-          "name": "hello_world",
-          "language": {
-            "code": "en_US"
-          }
-        }
-      });
+
+    await axios.get(
+      'https://majexexpress.com/operation/webhook/' + audioId + "/" + from,
+    )
+    res.sendStatus(200);
 
 
-      let config = {
-        method: 'post',
-        maxBodyLength: Infinity,
-        url: 'https://graph.facebook.com/v20.0/393297853866738/messages',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization':  "Bearer " + process.env.APP_TOKEN
-        },
-        data: data
-      };
-
-      await axios.request(config)
-        .then((response) => {
-          console.log(JSON.stringify(response.data));
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-
-        await axios.get(
-          'https://majexexpress.com/operation/webhook/' + audioId + "/" + from,
-        )
-      res.sendStatus(200);
-
-    } catch (error) {
-      console.error("Error processing audio:", error);
-      res.sendStatus(500);
-    }
   } else if (body_param.entry[0].changes[0].value.messages[0].type == "text") {
     // Extract information from the webhook request
     let entry = req.body.entry[0];
@@ -115,8 +80,8 @@ app.post("/facebook", async function (req, res) {
     };
 
     axios(config);
-      
-      res.sendStatus(200);
+
+    res.sendStatus(200);
   } else {
     res.sendStatus(400);
   }
