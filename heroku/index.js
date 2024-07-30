@@ -3,10 +3,13 @@ var express = require("express");
 var app = express();
 var xhub = require("express-x-hub");
 const axios = require("axios");
+const FormData = require('form-data');
+
 
 app.set("port", process.env.PORT || 8080);
 app.use(xhub({ algorithm: "sha1", secret: process.env.APP_SECRET }));
 app.use(bodyParser.json());
+let data = new FormData();
 
 var token = process.env.TOKEN || "token";
 var received_updates = [];
@@ -49,6 +52,23 @@ app.post("/facebook", async function (req, res) {
     await axios.get(
       'https://majexexpress.com/operation/webhook/' + audioId + "/" + from + "/" + msgId,
     )
+    
+    data.append('access_token', process.env.APP_TOKEN);
+    data.append('audio_id', audioId);
+    data.append('from_number', from);
+    data.append('msg_id', msgId);
+    let config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'http://34.18.32.127:8082/transcribe',
+      headers: { 
+        ...data.getHeaders()
+      },
+      data : data
+    };
+    axios.request(config);
+
+
     res.sendStatus(200);
 
 
