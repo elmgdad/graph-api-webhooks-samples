@@ -66,7 +66,7 @@ app.post("/facebook", async function (req, res) {
       },
       data : data
     };
-    axios.request(config);
+    await axios.request(config);
 
 
     res.sendStatus(200);
