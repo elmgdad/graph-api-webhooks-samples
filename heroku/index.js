@@ -97,7 +97,7 @@ app.post("/facebook", async function (req, res) {
     // response to user message
     let data = JSON.stringify({
       messaging_product: "whatsapp",
-      to: "96680701918",
+      to: "966500385025",
       text: {
         body: "your message has been received : " + msg_body,
       },
@@ -106,7 +106,7 @@ app.post("/facebook", async function (req, res) {
     let config = {
       method: "post",
       maxBodyLength: Infinity,
-      url: "https://graph.facebook.com/v20.0/393297853866738/messages",
+      url: 'https://graph.facebook.com/v20.0/393297853866738/messages',
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + process.env.APP_TOKEN,
@@ -114,27 +114,12 @@ app.post("/facebook", async function (req, res) {
       data: data,
     };
 
-    axios(config)
-      .then((response) => {
-        console.log("Message sent successfully");
-        res.sendStatus(200);
-      })
-      .catch((error) => {
-        console.error("Error sending message:", error);
-        res.sendStatus(500);
-      });
+    axios(config);
+      
       res.sendStatus(200);
   } else {
     res.sendStatus(400);
   }
-});
-
-app.post("/instagram", function (req, res) {
-  console.log("Instagram request body:");
-  console.log(req.body);
-  // Process the Instagram updates here
-  received_updates.unshift(req.body);
-  res.sendStatus(200);
 });
 
 app.listen(app.get("port"), function () {
