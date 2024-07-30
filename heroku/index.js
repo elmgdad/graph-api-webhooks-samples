@@ -64,7 +64,7 @@ app.post("/facebook", async function (req, res) {
         url: 'https://graph.facebook.com/v20.0/393297853866738/messages',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer EAAOwxVUua2ABO89bypQ9jwe9OcLfiZAMdtIX5ihuxZBoR4gKSIXjyODMsJK7eRu3zpCM23zZCjRPDnwULks73B58vWWoyya16qCmQFFgIV1QkIk0kvNHZCdXqW5BlXo8M6VCA2CtJwy5AtEduQkTWELblfVteyi1cpaOug3NR0f4QApdBteo8bfuPpIZBZCEE0nwZDZD'
+          'Authorization':  "Bearer " + process.env.APP_TOKEN
         },
         data: data
       };
