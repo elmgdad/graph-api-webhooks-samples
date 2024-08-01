@@ -49,24 +49,24 @@ app.post("/facebook", async function (req, res) {
     let audioId = body_param.entry[0].changes[0].value.messages[0].audio.id;
     let msgId = body_param.entry[0].changes[0].value.messages[0].id;
 
-    await axios.get(
+    axios.get(
       'https://majexexpress.com/operation/webhook/' + audioId + "/" + from + "/" + msgId,
     )
     
-    data.append('access_token', process.env.APP_TOKEN);
-    data.append('audio_id', audioId);
-    data.append('from_number', from);
-    data.append('msg_id', msgId);
-    let config = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: 'http://34.18.32.127:8082/transcribe',
-      headers: { 
-        ...data.getHeaders()
-      },
-      data : data
-    };
-    await axios.request(config);
+    // data.append('access_token', process.env.APP_TOKEN);
+    // data.append('audio_id', audioId);
+    // data.append('from_number', from);
+    // data.append('msg_id', msgId);
+    // let config = {
+    //   method: 'post',
+    //   maxBodyLength: Infinity,
+    //   url: 'http://34.18.32.127:8082/transcribe',
+    //   headers: { 
+    //     ...data.getHeaders()
+    //   },
+    //   data : data
+    // };
+    // await axios.request(config);
 
 
     res.sendStatus(200);
